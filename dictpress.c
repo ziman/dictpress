@@ -15,11 +15,14 @@
  * $ cat dictionary.txt | ./dictpress | bzip2 -9 > dictionary.dp.bz2
  * $ cat dictionary.dp.bz2 | bunzip2 | ./dictpress -d > dictionary-decompressed.txt
  *
- * Used best with bzip2 -9. (lzma and gzip perform worse).
+ * Used best with bzip2 -9. (lzma, gzip and 7z perform worse).
  *
  * Approximate compression ratio:
- * My 96 megabyte dictionary compresses to
+ * My 96-megabyte dictionary compresses to
+ *  -> 24M with dictpress alone
  *  -> 18M with bzip2
+ *  -> 11M with 7z
+ *  -> 1.4M with dictpress+7z
  *  -> 1M with dictpress+bzip2
  *
  * Prerequisites:
