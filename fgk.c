@@ -70,6 +70,8 @@ struct Huffman * hufInit()
 	for (i = 0; i < 512; ++i)
 		huf->numbers[i] = 0;
 	huf->numbers[ROOT] = huf->root;
+
+	return huf;
 }
 
 static Node * findLeader(struct Huffman * huf, Node * node)
