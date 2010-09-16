@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "fgk.h"
+
 // Print an error message and die.
 void die(const char * msg)
 {
@@ -55,15 +57,21 @@ void compare(char * lastWord, char * word, char ** suffix, int * trim)
 }
 
 // Encode the dictionary.
-void encode(void)
+void encode(FILE * input, FILE * output)
 {
 	// The buffers.
 	char _word[256], _lastWord[256];
 	char * lastWord = _lastWord, *word = _word;
 	*lastWord = 0;
-	
-	int delimiterNeeded = 0;
 
+	// Create Huffman contexts
+	struct Huffman * hufChars = hufInit();
+	struct Huffman * hufTrims = hufInit();
+
+	// Create bitIO
+	BitIO * bio = (BitIO *) malloc(sizeof(BitIO));
+	
+	
 	while (1)
 	{
 		// Get the line.
@@ -84,20 +92,31 @@ void encode(void)
 		int trim;
 		compare(lastWord, word, &suffix, &trim);
 
-		// Print the data.
-		if (delimiterNeeded) putchar(0);
-		printf("%c%s", (char) trim, suffix);
-		delimiterNeeded = 1;
+		// Print the trim length
+		hufPut(hufTrims, bio, (unsigned char) trim);
+		// Print the characters
+		while (*suffix)
+			hufPut(hufChars, bio, *suffix++);
+		// Print zero
+		hufPut(hufChars, bio, 0);
 
 		// Swap the two buffers.
 		char * tmp = lastWord;
 		lastWord = word;
 		word = tmp;
 	}
+
+	free(bio);
+
+	hufFree(hufTrims);
+	free(hufTrims);
+	
+	hufFree(hufChars);
+	free(hufChars);
 }
 
 // Decode the dictionary.
-void decode(void)
+void decode(FILE * input, FILE * output)
 {
 	char word[256];
 	*word = 0;
@@ -137,9 +156,9 @@ void decode(void)
 int main(int argc, char * argv[])
 {
 	if (argc == 2 && strcmp(argv[1], "-d") == 0)
-		decode();
+		decode(stdin, stdout);
 	else
-		encode();
+		encode(stdin, stdout);
 
 	return 0;
 }

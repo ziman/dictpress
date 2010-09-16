@@ -49,8 +49,11 @@ static Node * newNode(struct Huffman * huf, Node * parent, unsigned char value)
 	return result;
 }
 
-void hufInit(struct Huffman * huf)
+struct Huffman * hufInit()
 {
+	struct Huffman * huf = (struct Huffman *) malloc(sizeof(struct Huffman));
+	if (!huf) return 0;
+	
 	// initialize nextNumber
 	huf->nextNumber = 512;
 	

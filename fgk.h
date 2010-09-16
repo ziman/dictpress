@@ -5,7 +5,7 @@
 
 struct Huffman;
 
-void hufInit(struct Huffman * huf);
+struct Huffman * hufInit();
 
 void hufPut(struct Huffman * huf, BitIO * bio, unsigned char byte);
 unsigned char hufGet(struct Huffman * huf, BitIO * bio);
