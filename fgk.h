@@ -1,5 +1,5 @@
-#ifndef VITTER_H
-#define VITTER_H
+#ifndef FGK_H
+#define FGK_H
 
 #include "bitio.h"
 

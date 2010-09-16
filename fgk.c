@@ -1,25 +1,25 @@
-#include "vitter.h"
+#include "fgk.h"
+#include <stdlib.h>
 
 typedef struct Node
 {
-	int nyt;
 	int order;
 	unsigned char value;
 	unsigned int weight;
-	Node * child[2];
-	Node * parent;
+	struct Node * child[2];
+	struct Node * parent;
 } Node;
 
 typedef struct Nodes
 {
 	Node * node;
-	Nodes * next;
+	struct Nodes * next;
 } Nodes;
 
 typedef struct Block
 {
 	Nodes * nodes;
-	Leader * next;
+	struct Block * next;
 } Block;
 
 struct Huffman
@@ -71,7 +71,6 @@ static Node * newNode(Node * parent)
 {
 	Node * result = (Node *) malloc(sizeof(Node));
 
-	result->nyt = 0;
 	result->weight = 0;
 	result->child[0] = 0;
 	result->child[1] = 0;
@@ -83,15 +82,13 @@ static Node * newNode(Node * parent)
 void hufInit(struct Huffman * huf)
 {
 	// create NYT
-	Node * nyt = newNode();
-	nyt->nyt = 1;
-	huf->root = nyt;
+	huf->root = newNode(0);
 
 	// initialize codes
 	int i;
 	for (i = 0; i < 256; ++i)
 		huf->codes[i] = 0;
-	huf->codes[NYT] = nyt;
+	huf->codes[NYT] = huf->root;
 }
 
 void hufPut(struct Huffman * huf, BitIO * bio, unsigned char byte)
