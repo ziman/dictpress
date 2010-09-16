@@ -51,7 +51,7 @@ void putElias(BitIO * bio, int x)
 void putByte(BitIO * bio, unsigned char x)
 {
 	int i;
-	for (int i = 7; i >= 0; --i)
+	for (i = 7; i >= 0; --i)
 		putBit(bio, (x >> i) & 0x1);
 }
 
