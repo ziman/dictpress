@@ -1,2 +1,10 @@
 dictpress
 *.o
+FGK
+*.7z
+*.zip
+*.rar
+*.bz2
+*.dp
+*.lzma
+*.kdev4
