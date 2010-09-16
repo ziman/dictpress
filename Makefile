@@ -1,5 +1,10 @@
-dictpress: dictpress.c bitio.h bitio.c fgk.c fgk.h
-	cc dictpress.c bitio.c fgk.c -O2 -o dictpress -W -Wall
+DEPS = dictpress.c bitio.h bitio.c fgk.c fgk.h 
+
+dictpress: $(DEPS)
+	cc $(DEPS) -O2 -o dictpress -W -Wall
+
+debug:
+	cc $(DEPS) -O0 -o dictpress -W -Wall -g3 -ggdb
 
 clean:
 	rm -f *.o *~ dictpress
