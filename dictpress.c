@@ -70,12 +70,12 @@ void encode(FILE * input, FILE * output)
 
 	// Create bitIO
 	BitIO * bio = (BitIO *) malloc(sizeof(BitIO));
-	
+	bitUseOutputStream(bio, output);
 	
 	while (1)
 	{
 		// Get the line.
-		fgets(word, 256, stdin);
+		fgets(word, 256, input);
 		if (feof(stdin)) break;
 
 		// Remove CRLF.
@@ -125,7 +125,7 @@ void decode(FILE * input, FILE * output)
 	while (1)
 	{
 		// Get the trim length.
-		int trim = getchar();
+		int trim = getc(input);
 		if (trim == EOF) break;
 
 		// Decrease the write pointer.
@@ -137,10 +137,10 @@ void decode(FILE * input, FILE * output)
 		while (1)
 		{
 			// Get the character.
-			int ch = getchar();
+			int ch = getc(input);
 			if (ch == EOF) break;
 			if (ch == 0) break;
-			if (p - word >= sizeof(word))
+			if (p - word >= (int) sizeof(word))
 				die("Buffers too small.");
 
 			// Write it to the buffer.
@@ -149,7 +149,7 @@ void decode(FILE * input, FILE * output)
 
 		*p = '\0';
 
-		printf("%s\n", word);
+		fprintf(output, "%s\n", word);
 	}
 }
 

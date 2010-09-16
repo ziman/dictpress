@@ -10,18 +10,6 @@ typedef struct Node
 	struct Node * parent;
 } Node;
 
-typedef struct Nodes
-{
-	Node * node;
-	struct Nodes * next;
-} Nodes;
-
-typedef struct Block
-{
-	Nodes * nodes;
-	struct Block * next;
-} Block;
-
 struct Huffman
 {
 	Node * root;
@@ -179,27 +167,6 @@ unsigned char hufGet(struct Huffman * huf, BitIO * bio)
 	incrementWeight(huf, node);
 
 	return node->value;
-}
-
-static void freeNodes(Nodes * nodes)
-{
-	while (nodes)
-	{
-		Nodes * next = nodes->next;
-		free(nodes);
-		nodes = next;
-	}
-}
-
-static void freeBlocks(Block * block)
-{
-	while (block)
-	{
-		Block * next = block->next;
-		freeNodes(block->nodes);
-		free(block);
-		block = next;
-	}
 }
 
 static void freeNode(Node * node)
