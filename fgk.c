@@ -46,7 +46,7 @@ struct Huffman * hufInit()
 	huf->nextNumber = 512;
 	
 	// create NYT
-	huf->root = newNode(huf, 0, 0);
+	huf->root = newNode(huf, 0, 0xFF);
 
 	// initialize codes
 	int i;
@@ -81,6 +81,8 @@ static void emitCode(BitIO * bio, Node * node)
 {
 	if (node->parent)
 	{
+		if (node->parent == node)
+			((void(*)())0)();
 		emitCode(bio, node->parent);
 		
 		if (node == node->parent->child[0])
@@ -106,6 +108,15 @@ static void incrementWeight(struct Huffman * huf, Node * node)
 		{
 			SWAP(node->parent->child[0], node->parent->child[1]);
 		}
+		else if (node->parent == leader)
+		{
+			Node * parent = leader->parent;
+			parent->child[leader == parent->child[0] ? 0 : 1] = node;
+
+			int ix = node == leader->child[0] ? 0 : 1;
+			leader->child[ix] = node->child[ix];
+			node->child[ix] = leader;
+		}
 		else
 		{
 			Node * p = node->parent;
@@ -123,6 +134,10 @@ static void incrementWeight(struct Huffman * huf, Node * node)
 		int nr = node->number;
 		node->number = leader->number;
 		leader->number = nr;
+
+		// swap the numbers within huf
+		huf->numbers[node->number] = node;
+		huf->numbers[leader->number] = leader;
 	}
 
 	++node->weight;
@@ -145,8 +160,8 @@ void hufPut(struct Huffman * huf, BitIO * bio, unsigned char byte)
 		putByte(bio, byte);
 
 		// create two children of NYT
-		node = newNode(huf, nyt, 0);
-		Node * newNyt = newNode(huf, nyt, byte);
+		node = newNode(huf, nyt, byte);
+		Node * newNyt = newNode(huf, nyt, 0xFF);
 		nyt->child[0] = newNyt;
 		nyt->child[1] = node;
 
