@@ -108,6 +108,8 @@ void encode(FILE * input, FILE * output)
 
 	free(bio);
 
+	hufDump(hufTrims, stderr);
+
 	hufFree(hufTrims);
 	free(hufTrims);
 	

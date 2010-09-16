@@ -92,6 +92,38 @@ static void emitCode(BitIO * bio, Node * node)
 	}
 }
 
+static char * getCode(Node * node, char * buf, char * p)
+{
+	if (!node->parent)
+	{
+		*p = '\0';
+		return p;
+	}
+	else
+	{
+		Node * parent = node->parent;
+		char * end = getCode(node->parent, buf, p+1);
+		*(end - (p - buf + 1)) = parent->child[0] == node ? '0' : '1';
+		return end;
+	}
+}
+
+void hufDump(struct Huffman * huf, FILE * f)
+{
+	int i;
+	for (i = 0; i < 256; ++i)
+	{
+		Node * node = huf->codes[i];
+		
+		if (node)
+		{
+			char buf[257];
+			getCode(node, buf, buf);
+			fprintf(f, "%02x '%c': %s\n", (unsigned char) i, i > 31 ? (char) i : ' ', buf);
+		}
+	}
+}
+
 #define SWAP(a,b) { Node * p = a; a = b; b = p; }
 static void incrementWeight(struct Huffman * huf, Node * node)
 {
