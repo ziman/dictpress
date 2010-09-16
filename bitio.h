@@ -13,7 +13,7 @@ typedef struct BitIO
 void bitUseInputStream(BitIO * bio, FILE * stream);
 void bitUseOutputStream(BitIO * bio, FILE * stream);
 
-inline int getBit(BitIO * bio)
+static inline int getBit(BitIO * bio)
 {
 	if (bio->shift < 0)
 	{
@@ -24,7 +24,7 @@ inline int getBit(BitIO * bio)
 	return (bio->byte >> bio->shift--) & 0x1;
 }
 
-inline void putBit(BitIO * bio, int bit)
+static inline void putBit(BitIO * bio, int bit)
 {
 	if (bio->shift < 0)
 	{
