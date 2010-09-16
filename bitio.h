@@ -39,6 +39,8 @@ inline void putBit(BitIO * bio, int bit)
 int getElias(BitIO * bio);
 void putElias(BitIO * bio, int x);
 
+void putByte(BitIO * bio, unsigned char x);
+
 void bitFlush(BitIO * bio);
 
 
