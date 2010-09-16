@@ -68,7 +68,7 @@ static Node * findLeader(struct Huffman * huf, Node * node)
 	unsigned int weight = node->weight;
 
 	int i;
-	for (i = node->number+1; i <= ROOT; ++i)
+	for (i = node->number+1; i < ROOT; ++i)
 		if (huf->numbers[i]->weight == weight)
 			leader = i;
 		else
@@ -111,7 +111,7 @@ static void incrementWeight(struct Huffman * huf, Node * node)
 			Node * p = node->parent;
 			p->child[node == p->child[0] ? 0 : 1] = leader;
 
-			// root will never be selected as a leader since it has strongly greater weight (forall n: root.w > n.w)
+			// root will never be selected as a leader
 			p = leader->parent;
 			p->child[leader == p->child[0] ? 0 : 1] = node;
 
