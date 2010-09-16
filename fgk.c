@@ -4,6 +4,7 @@
 typedef struct Node
 {
 	int number;
+	unsigned char value;
 	unsigned int weight;
 	struct Node * child[2];
 	struct Node * parent;
@@ -32,7 +33,7 @@ struct Huffman
 #define NYT 256
 #define ROOT 512
 
-static Node * newNode(struct Huffman * huf, Node * parent)
+static Node * newNode(struct Huffman * huf, Node * parent, unsigned char value)
 {
 	Node * result = (Node *) malloc(sizeof(Node));
 
@@ -43,6 +44,7 @@ static Node * newNode(struct Huffman * huf, Node * parent)
 	result->child[0] = 0;
 	result->child[1] = 0;
 	result->parent = parent;
+	result->value = value;
 
 	return result;
 }
@@ -53,7 +55,7 @@ void hufInit(struct Huffman * huf)
 	huf->nextNumber = 512;
 	
 	// create NYT
-	huf->root = newNode(huf, 0);
+	huf->root = newNode(huf, 0, 0);
 
 	// initialize codes
 	int i;
@@ -150,8 +152,8 @@ void hufPut(struct Huffman * huf, BitIO * bio, unsigned char byte)
 		putByte(bio, byte);
 
 		// create two children of NYT
-		node = newNode(huf, nyt);
-		Node * newNyt = newNode(huf, nyt);
+		node = newNode(huf, nyt, 0);
+		Node * newNyt = newNode(huf, nyt, byte);
 		nyt->child[0] = newNyt;
 		nyt->child[1] = node;
 
@@ -161,6 +163,17 @@ void hufPut(struct Huffman * huf, BitIO * bio, unsigned char byte)
 	}
 
 	incrementWeight(huf, node);
+}
+
+unsigned char hufGet(struct Huffman * huf, BitIO * bio)
+{
+	Node * node = huf->root;
+	while (node->child[0])
+		node = node->child[getBit(bio)];
+
+	incrementWeight(huf, node);
+
+	return node->value;
 }
 
 static void freeNodes(Nodes * nodes)
