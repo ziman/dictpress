@@ -1,41 +1,12 @@
 /*
  * dictpress.c
- * Encode/decode dictionaries before/after compression.
+ * Compress alphabetically sorted wordlists.
  *
  * Copyright (c) 2010, Matus Tejiscak <functor.sk@ziman>
  * Released under the BSD license.
  * http://creativecommons.org/licenses/BSD/
  *
- * Purpose:
- * Encode dictionaries in the form that is better compressible by
- * general-purpose compression algorithms, exploiting their structure.
- *
- * Usage:
- * $ cc -O2 dictpress.c -o dictpress
- * $ cat dictionary.txt | ./dictpress | bzip2 -9 > dictionary.dp.bz2
- * $ cat dictionary.dp.bz2 | bunzip2 | ./dictpress -d > dictionary-decompressed.txt
- *
- * Used best with bzip2 -9. (lzma, gzip and 7z perform worse).
- *
- * Approximate compression ratio:
- * My 96-megabyte dictionary compresses to
- *  -> 24M with dictpress alone
- *  -> 18M with bzip2
- *  -> 11M with 7z
- *  -> 1.4M with dictpress+7z
- *  -> 1M with dictpress+bzip2
- *
- * Prerequisites:
- * There's no point in running this on an unsorted dictionary.
- * Words must not contain binary zero.
- *
- * Algorithm used:
- * We exploit the fact that consecutive words differ only a little in the suffix.
- * Therefore, for each word we record a pair (n,s) saying "remove n chars from the
- * end of the last word and append the string s".
- *
- * Warning:
- * Does not preserve CRs (#13, '\r', ...) in the input.
+ * See README for more information.
  */
 
 #include <stdio.h>
