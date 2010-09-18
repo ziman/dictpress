@@ -264,4 +264,5 @@ static void freeNode(Node * node)
 void hufFree(struct Huffman * huf)
 {
 	freeNode(huf->root);
+	free(huf);
 }

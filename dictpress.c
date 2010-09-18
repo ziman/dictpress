@@ -65,8 +65,12 @@ void encode(FILE * input, FILE * output)
 	*lastWord = 0;
 
 	// Create Huffman contexts
-	struct Huffman * hufChars = hufInit();
+	struct Huffman * hufChars[256];
+	struct Huffman * hufLens = hufInit();
 	struct Huffman * hufTrims = hufInit();
+
+	int i;
+	for (i = 0; i < 256; ++i) hufChars[i] = hufInit();
 
 	// Create bitIO
 	BitIO * bio = (BitIO *) malloc(sizeof(BitIO));
@@ -94,11 +98,18 @@ void encode(FILE * input, FILE * output)
 
 		// Print the trim length
 		hufPut(hufTrims, bio, (unsigned char) trim);
+		hufPut(hufLens, bio, (unsigned char) strlen(suffix));
+		
 		// Print the characters
+		unsigned char lastChar = (suffix > word) ? suffix[-1] : 0;
 		while (*suffix)
-			hufPut(hufChars, bio, *suffix++);
+		{
+			unsigned char byte = *suffix++;
+			hufPut(hufChars[lastChar], bio, byte);
+			lastChar = byte;
+		}
 		// Print zero
-		hufPut(hufChars, bio, 0);
+		// hufPut(hufChars, bio, 0);
 
 		// Swap the two buffers.
 		char * tmp = lastWord;
@@ -110,15 +121,13 @@ void encode(FILE * input, FILE * output)
 
 #ifdef DEBUG
 	hufDump(hufTrims, stderr, "trims");
-	hufDump(hufChars, stderr, "chars");
+	hufDump(hufLens, stderr, "diffs");
 	fflush(stderr);
 #endif
 
+	hufFree(hufLens);
 	hufFree(hufTrims);
-	free(hufTrims);
-	
-	hufFree(hufChars);
-	free(hufChars);
+	for (i = 0; i < 256; ++i) hufFree(hufChars[i]);
 }
 
 // Decode the dictionary.
