@@ -93,14 +93,12 @@ void encode(FILE * input, FILE * output)
 		compare(lastWord, word, &suffix, &trim);
 
 		// Print the trim length
-		/* hufPut(hufTrims, bio, (unsigned char) trim); */
+		hufPut(hufTrims, bio, (unsigned char) trim);
 		// Print the characters
 		while (*suffix)
 			hufPut(hufChars, bio, *suffix++);
 		// Print zero
 		hufPut(hufChars, bio, 0);
-	hufDump(hufTrims, stderr);
-	fflush(stderr);
 
 		// Swap the two buffers.
 		char * tmp = lastWord;
@@ -110,8 +108,10 @@ void encode(FILE * input, FILE * output)
 
 	free(bio);
 
+#ifdef DEBUG
 	hufDump(hufTrims, stderr);
 	fflush(stderr);
+#endif
 
 	hufFree(hufTrims);
 	free(hufTrims);

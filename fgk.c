@@ -92,6 +92,7 @@ static void emitCode(BitIO * bio, Node * node)
 	}
 }
 
+#ifdef DEBUG
 static void getCode(FILE * f, Node * node)
 {
 	if (node->parent)
@@ -143,6 +144,7 @@ void hufDump(struct Huffman * huf, FILE * f)
 		}
 	}
 }
+#endif
 
 #define SWAP(a,b) { Node * p = a; a = b; b = p; }
 static void incrementWeight(struct Huffman * huf, Node * node)
@@ -222,12 +224,7 @@ void hufPut(struct Huffman * huf, BitIO * bio, unsigned char byte)
 		huf->codes[byte] = node;
 	}
 
-	fprintf(stderr, "inserting '%c'\n", byte);
-	hufDump(huf, stderr);
-	if (!hufValid(huf)) COREDUMP;
 	incrementWeight(huf, node);
-	hufDump(huf, stderr);
-	if (!hufValid(huf)) COREDUMP;
 }
 
 unsigned char hufGet(struct Huffman * huf, BitIO * bio)
