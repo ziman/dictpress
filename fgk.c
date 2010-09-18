@@ -62,14 +62,14 @@ struct Huffman * hufInit()
 	return huf;
 }
 
-static Node * findLeader(struct Huffman * huf, Node * node)
+static Node * findLeader(struct Huffman * huf, Node * node, int leafNeeded)
 {
 	int leader = node->number;
 	unsigned int weight = node->weight;
 
 	int i;
 	for (i = node->number+1; i < ROOT; ++i)
-		if (huf->numbers[i]->weight == weight)
+		if (huf->numbers[i]->weight == weight && (!leafNeeded || huf->numbers[i]->child[0] == 0))
 			leader = i;
 		else
 			break;
@@ -92,24 +92,44 @@ static void emitCode(BitIO * bio, Node * node)
 	}
 }
 
-static char * getCode(Node * node, char * buf, char * p)
+static void getCode(FILE * f, Node * node)
 {
-	if (!node->parent)
+	if (node->parent)
 	{
-		*p = '\0';
-		return p;
+		getCode(f, node->parent);
+		
+		if (node == node->parent->child[0])
+			fputc('0', f);
+		else if (node == node->parent->child[1])
+			fputc('1', f);
+		else
+			fputc('?', f);
 	}
-	else
+}
+
+int hufValid(struct Huffman * huf)
+{
+	int i;
+	for (i = 0; i < 256; ++i)
 	{
-		Node * parent = node->parent;
-		char * end = getCode(node->parent, buf, p+1);
-		*(end - (p - buf + 1)) = parent->child[0] == node ? '0' : '1';
-		return end;
+		Node * node = huf->codes[i];
+		if (node)
+		{
+			if (node == node->parent->child[0])
+				continue;
+			else if (node == node->parent->child[1])
+				continue;
+			else
+				return 0;
+		}
 	}
+
+	return 1;
 }
 
 void hufDump(struct Huffman * huf, FILE * f)
 {
+	fprintf(f, "---\n");
 	int i;
 	for (i = 0; i < 256; ++i)
 	{
@@ -117,9 +137,9 @@ void hufDump(struct Huffman * huf, FILE * f)
 		
 		if (node)
 		{
-			char buf[257];
-			getCode(node, buf, buf);
-			fprintf(f, "%02x '%c': %s\n", (unsigned char) i, i > 31 ? (char) i : ' ', buf);
+			fprintf(f, "%02x '%c' (%p): ", (unsigned char) i, i > 31 ? (char) i : ' ', node);
+			getCode(f, node);
+			fprintf(f, "\n");
 		}
 	}
 }
@@ -133,7 +153,7 @@ static void incrementWeight(struct Huffman * huf, Node * node)
 		return;
 	}
 	
-	Node * leader = findLeader(huf, node);
+	Node * leader = findLeader(huf, node, node->parent == huf->codes[NYT]->parent);
 	if (leader != node)
 	{
 		if (node->parent == leader->parent)
@@ -202,7 +222,12 @@ void hufPut(struct Huffman * huf, BitIO * bio, unsigned char byte)
 		huf->codes[byte] = node;
 	}
 
+	fprintf(stderr, "inserting '%c'\n", byte);
+	hufDump(huf, stderr);
+	if (!hufValid(huf)) COREDUMP;
 	incrementWeight(huf, node);
+	hufDump(huf, stderr);
+	if (!hufValid(huf)) COREDUMP;
 }
 
 unsigned char hufGet(struct Huffman * huf, BitIO * bio)
