@@ -55,5 +55,17 @@ void putByte(BitIO * bio, unsigned char x)
 		putBit(bio, (x >> i) & 0x1);
 }
 
+unsigned char getByte(BitIO * bio)
+{
+	unsigned char result = 0;
+	int i = 8;
+	while (i--)
+	{
+		result <<= 1;
+		result |= getBit(bio);
+	}
+	return result;
+}
+
 
 

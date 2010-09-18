@@ -40,6 +40,7 @@ int getElias(BitIO * bio);
 void putElias(BitIO * bio, int x);
 
 void putByte(BitIO * bio, unsigned char x);
+unsigned char getByte(BitIO * bio);
 
 void bitFlush(BitIO * bio);
 

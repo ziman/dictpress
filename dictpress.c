@@ -109,7 +109,8 @@ void encode(FILE * input, FILE * output)
 	free(bio);
 
 #ifdef DEBUG
-	hufDump(hufTrims, stderr);
+	hufDump(hufTrims, stderr, "trims");
+	hufDump(hufChars, stderr, "chars");
 	fflush(stderr);
 #endif
 

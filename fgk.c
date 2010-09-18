@@ -128,9 +128,9 @@ int hufValid(struct Huffman * huf)
 	return 1;
 }
 
-void hufDump(struct Huffman * huf, FILE * f)
+void hufDump(struct Huffman * huf, FILE * f, char * name)
 {
-	fprintf(f, "---\n");
+	fprintf(f, "-- [%s] --\n", name);
 	int i;
 	for (i = 0; i < 256; ++i)
 	{
@@ -198,6 +198,22 @@ static void incrementWeight(struct Huffman * huf, Node * node)
 	incrementWeight(huf, node->parent);
 }
 
+static Node * createNode(struct Huffman * huf, unsigned char byte)
+{
+	// create two children of NYT
+	Node * nyt = huf->codes[NYT];
+	Node * node = newNode(huf, nyt, byte);
+	Node * newNyt = newNode(huf, nyt, 0xFF);
+	nyt->child[0] = newNyt;
+	nyt->child[1] = node;
+
+	// update backreferences
+	huf->codes[NYT] = newNyt;
+	huf->codes[byte] = node;
+
+	return node;
+}
+
 void hufPut(struct Huffman * huf, BitIO * bio, unsigned char byte)
 {
 	Node * node = huf->codes[byte];
@@ -209,19 +225,10 @@ void hufPut(struct Huffman * huf, BitIO * bio, unsigned char byte)
 	else
 	{
 		// emit NYT+literal code into the bitstream
-		Node * nyt = huf->codes[NYT];
-		emitCode(bio, nyt);
+		emitCode(bio, huf->codes[NYT]);
 		putByte(bio, byte);
 
-		// create two children of NYT
-		node = newNode(huf, nyt, byte);
-		Node * newNyt = newNode(huf, nyt, 0xFF);
-		nyt->child[0] = newNyt;
-		nyt->child[1] = node;
-
-		// update backreferences
-		huf->codes[NYT] = newNyt;
-		huf->codes[byte] = node;
+		node = createNode(huf, byte);
 	}
 
 	incrementWeight(huf, node);
@@ -232,6 +239,12 @@ unsigned char hufGet(struct Huffman * huf, BitIO * bio)
 	Node * node = huf->root;
 	while (node->child[0])
 		node = node->child[getBit(bio)];
+
+	if (node == huf->codes[NYT])
+	{
+		unsigned char byte = getByte(bio);
+		node = createNode(huf, byte);
+	}
 
 	incrementWeight(huf, node);
 

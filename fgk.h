@@ -14,7 +14,7 @@ void hufPut(struct Huffman * huf, BitIO * bio, unsigned char byte);
 unsigned char hufGet(struct Huffman * huf, BitIO * bio);
 
 #ifdef DEBUG
-void hufDump(struct Huffman * huf, FILE * f);
+void hufDump(struct Huffman * huf, FILE * f, char * name);
 int hufValid(struct Huffman * huf);
 #endif
 
